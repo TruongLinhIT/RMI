@@ -9,7 +9,7 @@ public class ServerMain {
     // =========================================================================
     // 👉 Chỉ cần điền IP của máy Server đối tác vào đây (VD: "192.168.1.20" hoặc "172.21.0.1")
     // 👉 Nếu chỉ test một mình máy này (không đồng bộ) thì để trống ""
-    private static final String PEER_IP = ""; 
+    private static final String PEER_IP = "172.21.0.1"; 
 
     // =========================================================================
     // 2. CẤU HÌNH RMI SERVER CỤC BỘ
