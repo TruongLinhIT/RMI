@@ -113,12 +113,12 @@ public class BankClientUI extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
         title.setForeground(Color.WHITE);
 
-        JLabel subtitle = new JLabel("Mô hình 2 Server A - B Đồng Bộ Hai Chiều", SwingConstants.CENTER);
-        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitle.setForeground(new Color(220, 235, 255));
+        // JLabel subtitle = new JLabel("Mô hình 2 Server A - B Đồng Bộ Hai Chiều", SwingConstants.CENTER);
+        // subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        // subtitle.setForeground(new Color(220, 235, 255));
 
         headerPanel.add(title);
-        headerPanel.add(subtitle);
+        // headerPanel.add(subtitle);
         panel.add(headerPanel, BorderLayout.NORTH);
 
         // Form đăng nhập
