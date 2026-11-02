@@ -65,6 +65,39 @@ public class BankClientUI extends JFrame {
     }
 
     // =========================================================================
+    // HÀM TẠO NÚT BẤM (BUTTON) TÙY BIẾN ĐẸP MẮT, KHÔNG BỊ LỖI CHỮ TRẮNG TRÊN NỀN TRẮNG
+    // =========================================================================
+    private JButton createCustomButton(String text, Color bgColor, Color hoverColor, Color fgColor, int radius) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (!isEnabled()) {
+                    g2.setColor(new Color(200, 205, 210));
+                } else if (getModel().isPressed()) {
+                    g2.setColor(bgColor.darker());
+                } else if (getModel().isRollover()) {
+                    g2.setColor(hoverColor);
+                } else {
+                    g2.setColor(bgColor);
+                }
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btn.setForeground(fgColor);
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setOpaque(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    // =========================================================================
     // 1. MÀN HÌNH ĐĂNG NHẬP
     // =========================================================================
     private JPanel createLoginPanel() {
@@ -145,31 +178,9 @@ public class BankClientUI extends JFrame {
         gbc.gridwidth = 2;
         card.add(lblLoginStatus, gbc);
 
-        // Nút Đăng nhập
-        btnLogin = new JButton("ĐĂNG NHẬP VÀO HỆ THỐNG") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (getModel().isPressed()) {
-                    g2.setColor(new Color(15, 95, 200));
-                } else if (getModel().isRollover()) {
-                    g2.setColor(new Color(30, 130, 255));
-                } else {
-                    g2.setColor(new Color(24, 119, 242));
-                }
-                g2.fillRect(0, 0, getWidth(), getHeight());
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLogin.setForeground(Color.WHITE);
-        btnLogin.setContentAreaFilled(false);
-        btnLogin.setBorderPainted(false);
-        btnLogin.setFocusPainted(false);
-        btnLogin.setOpaque(false);
-        btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Nút Đăng nhập (Nền xanh đậm, chữ trắng)
+        btnLogin = createCustomButton("ĐĂNG NHẬP VÀO HỆ THỐNG", 
+                new Color(24, 119, 242), new Color(13, 100, 215), Color.WHITE, 8);
         btnLogin.setPreferredSize(new Dimension(300, 42));
         btnLogin.addActionListener(e -> executeLogin());
 
@@ -227,12 +238,10 @@ public class BankClientUI extends JFrame {
         userBox.add(lblWelcome);
         userBox.add(lblServerBadge);
 
-        btnLogout = new JButton("Đăng xuất");
-        btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnLogout.setBackground(new Color(220, 53, 69));
-        btnLogout.setForeground(Color.WHITE);
-        btnLogout.setFocusPainted(false);
-        btnLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Nút Đăng xuất: NỀN ĐỎ NỔI BẬT, CHỮ TRẮNG RÕ RÀNG
+        btnLogout = createCustomButton("Đăng xuất", 
+                new Color(220, 53, 69), new Color(195, 30, 45), Color.WHITE, 6);
+        btnLogout.setPreferredSize(new Dimension(105, 34));
         btnLogout.addActionListener(e -> executeLogout());
 
         topBar.add(userBox, BorderLayout.WEST);
@@ -259,11 +268,10 @@ public class BankClientUI extends JFrame {
         lblBalance.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblBalance.setForeground(new Color(40, 167, 69));
 
-        btnRefresh = new JButton("🔄 Làm mới số dư");
-        btnRefresh.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        btnRefresh.setBackground(new Color(240, 242, 245));
-        btnRefresh.setFocusPainted(false);
-        btnRefresh.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Nút Làm mới số dư (Nền xám nhạt hiện đại, chữ đậm màu tối)
+        btnRefresh = createCustomButton("Làm mới số dư", 
+                new Color(235, 238, 242), new Color(220, 225, 230), new Color(33, 37, 41), 6);
+        btnRefresh.setPreferredSize(new Dimension(200, 36));
         btnRefresh.addActionListener(e -> refreshBalance());
 
         balanceCard.add(lblBalTitle, BorderLayout.NORTH);
@@ -292,7 +300,9 @@ public class BankClientUI extends JFrame {
 
         tGbc.gridwidth = 1;
         tGbc.gridx = 0; tGbc.gridy = 1;
-        transferCard.add(new JLabel("Người nhận:"), tGbc);
+        JLabel lblRecv = new JLabel("Người nhận:");
+        lblRecv.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        transferCard.add(lblRecv, tGbc);
 
         txtToUser = new JTextField();
         txtToUser.setFont(new Font("Segoe UI", Font.PLAIN, 13));
@@ -300,19 +310,19 @@ public class BankClientUI extends JFrame {
         transferCard.add(txtToUser, tGbc);
 
         tGbc.gridx = 0; tGbc.gridy = 2;
-        transferCard.add(new JLabel("Số tiền (VNĐ):"), tGbc);
+        JLabel lblMoney = new JLabel("Số tiền (VNĐ):");
+        lblMoney.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        transferCard.add(lblMoney, tGbc);
 
         txtAmount = new JTextField();
         txtAmount.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         tGbc.gridx = 1; tGbc.gridy = 2;
         transferCard.add(txtAmount, tGbc);
 
-        btnTransfer = new JButton("GỬI TIỀN NGAY");
-        btnTransfer.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnTransfer.setBackground(new Color(24, 119, 242));
-        btnTransfer.setForeground(Color.WHITE);
-        btnTransfer.setFocusPainted(false);
-        btnTransfer.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Nút Chuyển tiền: NỀN XANH DƯƠNG ĐẬM, CHỮ TRẮNG RÕ RÀNG
+        btnTransfer = createCustomButton("GỬI TIỀN NGAY", 
+                new Color(24, 119, 242), new Color(13, 100, 215), Color.WHITE, 6);
+        btnTransfer.setPreferredSize(new Dimension(240, 38));
         btnTransfer.addActionListener(e -> executeTransfer());
 
         tGbc.gridx = 0; tGbc.gridy = 3;
