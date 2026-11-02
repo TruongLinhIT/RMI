@@ -16,10 +16,9 @@ public class BankClientUI extends JFrame {
     // RMI & Session
     private IBankService bankService;
     private String currentUsername = null;
-    private String currentServerInfo = "";
+    private static final int DEFAULT_RMI_PORT = 1099;
 
     // Login Components
-    private JComboBox<String> cbServer;
     private JTextField txtHost;
     private JTextField txtUsername;
     private JPasswordField txtPassword;
@@ -97,80 +96,97 @@ public class BankClientUI extends JFrame {
         card.setBackground(Color.WHITE);
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(220, 224, 230), 1),
-                new EmptyBorder(25, 35, 25, 35)
+                new EmptyBorder(30, 40, 30, 40)
         ));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(8, 5, 8, 5);
+        gbc.insets = new Insets(10, 8, 10, 8);
 
-        // Chọn Server
+        // Host IP Server
         gbc.gridx = 0; gbc.gridy = 0;
-        card.add(new JLabel("Chọn Server kết nối:"), gbc);
-
-        cbServer = new JComboBox<>(new String[]{
-                "Server A (Port 1099 - CSDL: bank_a)",
-                "Server B (Port 1100 - CSDL: bank_b)"
-        });
-        cbServer.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        gbc.gridx = 1; gbc.gridy = 0;
-        card.add(cbServer, gbc);
-
-        // Host IP
-        gbc.gridx = 0; gbc.gridy = 1;
-        card.add(new JLabel("Host IP Server:"), gbc);
+        JLabel lblHost = new JLabel("Host IP Server:");
+        lblHost.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        card.add(lblHost, gbc);
 
         txtHost = new JTextField("localhost", 18);
         txtHost.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        gbc.gridx = 1; gbc.gridy = 1;
+        txtHost.setToolTipText("Nhập IP của máy chạy Server (hoặc localhost nếu cùng máy)");
+        gbc.gridx = 1; gbc.gridy = 0;
         card.add(txtHost, gbc);
 
         // Tên tài khoản
-        gbc.gridx = 0; gbc.gridy = 2;
-        card.add(new JLabel("Tên tài khoản:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 1;
+        JLabel lblUser = new JLabel("Tên tài khoản:");
+        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        card.add(lblUser, gbc);
 
         txtUsername = new JTextField("user1", 18);
         txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        gbc.gridx = 1; gbc.gridy = 2;
+        gbc.gridx = 1; gbc.gridy = 1;
         card.add(txtUsername, gbc);
 
         // Mật khẩu
-        gbc.gridx = 0; gbc.gridy = 3;
-        card.add(new JLabel("Mật khẩu:"), gbc);
+        gbc.gridx = 0; gbc.gridy = 2;
+        JLabel lblPass = new JLabel("Mật khẩu:");
+        lblPass.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        card.add(lblPass, gbc);
 
         txtPassword = new JPasswordField("123", 18);
         txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        gbc.gridx = 1; gbc.gridy = 3;
+        gbc.gridx = 1; gbc.gridy = 2;
         card.add(txtPassword, gbc);
 
         // Trạng thái / Báo lỗi
         lblLoginStatus = new JLabel(" ", SwingConstants.CENTER);
         lblLoginStatus.setFont(new Font("Segoe UI", Font.BOLD, 12));
         lblLoginStatus.setForeground(new Color(220, 53, 69));
-        gbc.gridx = 0; gbc.gridy = 4;
+        gbc.gridx = 0; gbc.gridy = 3;
         gbc.gridwidth = 2;
         card.add(lblLoginStatus, gbc);
 
         // Nút Đăng nhập
-        btnLogin = new JButton("ĐĂNG NHẬP VÀO HỆ THỐNG");
+        btnLogin = new JButton("ĐĂNG NHẬP VÀO HỆ THỐNG") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (getModel().isPressed()) {
+                    g2.setColor(new Color(15, 95, 200));
+                } else if (getModel().isRollover()) {
+                    g2.setColor(new Color(30, 130, 255));
+                } else {
+                    g2.setColor(new Color(24, 119, 242));
+                }
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
         btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnLogin.setBackground(new Color(24, 119, 242));
         btnLogin.setForeground(Color.WHITE);
+        btnLogin.setContentAreaFilled(false);
+        btnLogin.setBorderPainted(false);
         btnLogin.setFocusPainted(false);
+        btnLogin.setOpaque(false);
         btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnLogin.setPreferredSize(new Dimension(280, 40));
+        btnLogin.setPreferredSize(new Dimension(300, 42));
         btnLogin.addActionListener(e -> executeLogin());
 
-        gbc.gridx = 0; gbc.gridy = 5;
+        // Nhấn Enter ở ô mật khẩu cũng tự đăng nhập
+        txtPassword.addActionListener(e -> executeLogin());
+
+        gbc.gridx = 0; gbc.gridy = 4;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(15, 5, 5, 5);
+        gbc.insets = new Insets(15, 8, 8, 8);
         card.add(btnLogin, gbc);
 
         // Gợi ý
         JLabel hint = new JLabel("<html><center style='color:#6c757d; font-size:11px;'>"
                 + "Gợi ý tài khoản mẫu: <b>user1</b> / pass <b>123</b> hoặc <b>user2</b> / pass <b>123</b>"
                 + "</center></html>", SwingConstants.CENTER);
-        gbc.gridy = 6;
+        gbc.gridy = 5;
+        gbc.insets = new Insets(5, 8, 5, 8);
         card.add(hint, gbc);
 
         formWrapper.add(card);
@@ -201,7 +217,7 @@ public class BankClientUI extends JFrame {
         lblWelcome = new JLabel("Xin chào, user1");
         lblWelcome.setFont(new Font("Segoe UI", Font.BOLD, 17));
 
-        lblServerBadge = new JLabel("  Server A (Port 1099)  ");
+        lblServerBadge = new JLabel("  Server: localhost  ");
         lblServerBadge.setFont(new Font("Segoe UI", Font.BOLD, 11));
         lblServerBadge.setForeground(new Color(15, 81, 50));
         lblServerBadge.setBackground(new Color(212, 237, 218));
@@ -212,7 +228,7 @@ public class BankClientUI extends JFrame {
         userBox.add(lblServerBadge);
 
         btnLogout = new JButton("Đăng xuất");
-        btnLogout.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        btnLogout.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnLogout.setBackground(new Color(220, 53, 69));
         btnLogout.setForeground(Color.WHITE);
         btnLogout.setFocusPainted(false);
@@ -341,8 +357,6 @@ public class BankClientUI extends JFrame {
         String host = txtHost.getText().trim();
         if (host.isEmpty()) host = "localhost";
 
-        int port = (cbServer.getSelectedIndex() == 0) ? 1099 : 1100;
-        String serverTag = (cbServer.getSelectedIndex() == 0) ? "Server A (Port 1099)" : "Server B (Port 1100)";
         String username = txtUsername.getText().trim();
         String password = new String(txtPassword.getPassword());
 
@@ -351,15 +365,14 @@ public class BankClientUI extends JFrame {
             return;
         }
 
-        lblLoginStatus.setText("⏳ Đang kết nối tới " + serverTag + "...");
+        lblLoginStatus.setText("⏳ Đang kết nối tới " + host + ":" + DEFAULT_RMI_PORT + "...");
         lblLoginStatus.setForeground(new Color(24, 119, 242));
         btnLogin.setEnabled(false);
 
-        // Chạy qua luồng riêng để không bị đơ UI Swing
         final String finalHost = host;
         new Thread(() -> {
             try {
-                String rmiUrl = "rmi://" + finalHost + ":" + port + "/BankService";
+                String rmiUrl = "rmi://" + finalHost + ":" + DEFAULT_RMI_PORT + "/BankService";
                 IBankService service = (IBankService) Naming.lookup(rmiUrl);
 
                 String result = service.login(username, password);
@@ -367,15 +380,13 @@ public class BankClientUI extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     btnLogin.setEnabled(true);
                     if ("OK".equals(result)) {
-                        // Đăng nhập thành công
                         bankService = service;
                         currentUsername = username;
-                        currentServerInfo = serverTag;
 
                         lblWelcome.setText("Xin chào, " + username);
-                        lblServerBadge.setText("  " + serverTag + "  ");
+                        lblServerBadge.setText("  Server: " + finalHost + "  ");
                         txtLogs.setText("");
-                        addLog("Đăng nhập thành công vào " + serverTag);
+                        addLog("Đăng nhập thành công vào Server (" + finalHost + ")");
 
                         refreshBalance();
                         cardLayout.show(mainPanel, "DASHBOARD");
@@ -386,7 +397,7 @@ public class BankClientUI extends JFrame {
                         JOptionPane.showMessageDialog(this,
                                 "⚠️ CẢNH BÁO TỪ CHỐI ĐĂNG NHẬP:\n\n"
                                         + "Tài khoản '" + username + "' hiện ĐANG ĐƯỢC ĐĂNG NHẬP ở một nơi khác\n"
-                                        + "(trên Server A hoặc Server B)!\n\n"
+                                        + "(trên hệ thống Server A hoặc Server B)!\n\n"
                                         + "👉 Vui lòng đăng xuất ở thiết bị kia trước khi đăng nhập lại.",
                                 "Tài khoản đang đăng nhập", JOptionPane.WARNING_MESSAGE);
                     } else {
@@ -401,8 +412,8 @@ public class BankClientUI extends JFrame {
                     lblLoginStatus.setForeground(new Color(220, 53, 69));
                     lblLoginStatus.setText("Lỗi kết nối RMI: " + ex.getMessage());
                     JOptionPane.showMessageDialog(this,
-                            "Không thể kết nối tới " + serverTag + " tại " + finalHost + ":" + port + "!\n"
-                                    + "Hãy đảm bảo file Server tương ứng đã được khởi chạy.",
+                            "Không thể kết nối tới Server tại " + finalHost + ":" + DEFAULT_RMI_PORT + "!\n"
+                                    + "Hãy đảm bảo file ServerMain đã được chạy trên máy đó.",
                             "Lỗi kết nối Server", JOptionPane.ERROR_MESSAGE);
                 });
             }
@@ -456,7 +467,7 @@ public class BankClientUI extends JFrame {
                         JOptionPane.showMessageDialog(this,
                                 "✅ Chuyển tiền thành công!\n\n"
                                         + "Đã chuyển " + formattedAmt + " tới tài khoản '" + toUser + "'.\n"
-                                        + "Số dư đã được đồng bộ tự động sang cả Server A và Server B.",
+                                        + "Số dư đã được đồng bộ tự động sang cả 2 Server.",
                                 "Giao dịch thành công", JOptionPane.INFORMATION_MESSAGE);
 
                         addLog("Chuyển " + formattedAmt + " tới '" + toUser + "' thành công (Đồng bộ Dual-Server).");
@@ -516,4 +527,3 @@ public class BankClientUI extends JFrame {
         });
     }
 }
-
