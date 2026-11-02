@@ -1,6 +1,8 @@
 import java.io.Serializable;
 
 public class Account implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String username;
     private String password;
     private Double balance;
@@ -43,5 +45,14 @@ public class Account implements Serializable {
 
     public void setLocked(boolean locked) {
         isLocked = locked;
+    }
+
+    // So sánh xem 2 tài khoản có giống hệt nhau không
+    public boolean isSame(Account other) {
+        if (other == null) return false;
+        return this.username.equals(other.username)
+                && this.password.equals(other.password)
+                && Double.compare(this.balance, other.balance) == 0
+                && this.isLocked == other.isLocked;
     }
 }

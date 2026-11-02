@@ -4,12 +4,8 @@ import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 
 public class ServerMain {
-    // =========================================================================
-    // 1. CẤU HÌNH ĐỐI TÁC (Khi chạy 2 máy khác nhau)
-    // =========================================================================
-    // 👉 Chỉ cần điền IP của máy Server đối tác vào đây (VD: "192.168.1.20" hoặc "172.21.0.1")
-    // 👉 Nếu chỉ test một mình máy này (không đồngbộ) thì để trống ""
-    private static final String PEER_IP = "192.168.1.48"; 
+   
+    private static final String PEER_IP = "10.225.243.198"; 
 
     // =========================================================================
     // 2. CẤU HÌNH RMI SERVER CỤC BỘ
